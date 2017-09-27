@@ -27,8 +27,12 @@ class ButtonAlone extends React.Component {
 }
 
 class Button extends React.Component {
+    handleClick = () => { 
+        this.props.onClickFunction(this.props.incrementBy) ; 
+     };
+
     render() {
-        return ( <button onClick={ () => this.props.onClickFunction(this.props.incrementBy)}>+ {this.props.incrementBy}</button> );
+        return ( <button onClick={this.handleClick}>+ {this.props.incrementBy}</button> );
     }
 }
 
@@ -40,12 +44,12 @@ const Result = (props) => {
 
 class App extends React.Component {
     state = { count : 0 };
-    
+
     incrementCount = (incrementBy) => {
         this.setState((previousState) => ({
-                count: previousState.count + incrementBy
-            }));
-        };
+            count: previousState.count + incrementBy
+        }));
+    };
 
     render() {
         return (
