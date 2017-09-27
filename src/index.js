@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import axios from 'axios';
 
 const Card = (props) => {
     return (
@@ -14,19 +15,6 @@ const Card = (props) => {
     ) ;
 }
 
-let data = [
-    { 
-        name:"Paul O’Shannessy", 
-        company:"facebook", 
-        avatarUrl:"https://avatars1.githubusercontent.com/u/8445?v=4" 
-    },
-    { 
-        name:"Paul O’Shannessy", 
-        company:"facebook", 
-        avatarUrl:"https://avatars1.githubusercontent.com/u/8445?v=4" 
-    }
-];
-
 const CardList = (props) => {
     return (
         <div>
@@ -35,14 +23,58 @@ const CardList = (props) => {
     );
 }
   
-// class App extends React.Component {
-//     render() {
-//         return (
-//             <div>
-//                 <CardList />
-//             </div>
-//         );
-//     }
-// }
+class Form extends React.Component {
+    state = { username : '' }
 
-ReactDOM.render(<CardList guys={data} />, root);
+    handleSubmit = (event) => {
+        event.preventDefault();
+        console.log(`search for '${this.state.username}'`);
+        axios.get(`https://api.github.com/users/${this.state.username}`).then(response => {
+            console.log(`response for '${this.state.username}' is =>`);
+            console.log(response);
+            let data = response.data;
+            this.props.onSubmit({
+                key: data.id,
+                name: data.name,
+                company: data.company,
+                avatarUrl: data.avatar_url
+            });
+
+            this.setState({username: ""});
+        });
+    };
+
+    render() {
+        return (
+            <form onSubmit={this.handleSubmit}>
+                <input type="text" value={this.state.username} onChange={(event) => this.setState({username: event.target.value})} placeholder="Github Username" required></input>
+                <button type="submit">Add</button>
+            </form>
+        );
+    }
+}
+
+class App extends React.Component {
+    state = {
+        cards: []
+    };
+
+    addCard = (card) => {
+        console.log("Add this card =>");
+        console.log(card);
+        this.setState(prevState => ({
+            cards: prevState.cards.concat(card)
+        }));
+    };
+
+    render() {
+        return (
+            <div>
+                <Form onSubmit={this.addCard} />
+                <CardList guys={this.state.cards} />
+            </div>
+        );
+    }
+}
+
+ReactDOM.render(<App />, root);
