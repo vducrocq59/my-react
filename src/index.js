@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-const Stars = () => {
-    const starsCount = 1 + Math.floor(Math.random()*9);
+const Stars = (props) => {
+    const starsCount = props.starsCount;
     
     let stars = [];
     for(let starIdx=0 ; starIdx<starsCount ; starIdx++) {
@@ -25,18 +25,34 @@ const Button = () => {
     )
 }
 
-const Answer = () => {
+const Answer = (props) => {
     return (
-        <div className="col-5">..ANSWER..</div>
+        <div className="col-5">
+            {props.selectedNumbers.map((number, i) => 
+                <span key={i}>{number}</span>
+            )}
+        </div>
     )
 }
 
-const Numbers = () => {
+const Numbers = (props) => {
+    let getNumberClassName = (number) => {
+        if(props.selectedNumbers.indexOf(number) >= 0) {
+            return 'selected';
+        }
+    }
+
+    let onClickNumberFunction = (number) => {
+        if(props.selectedNumbers.indexOf(number) < 0) {
+             props.onClickNumbers(number);
+        }
+    }
+
     return (
         <div className="card text-center">
             <div>
                 {Numbers.list.map((number, i) => 
-                    <span key={i}>{number}</span>
+                    <span key={i} className={getNumberClassName(number)} onClick={() => onClickNumberFunction(number)}>{number}</span>
                 )}
             </div>
         </div>
@@ -45,16 +61,28 @@ const Numbers = () => {
 Numbers.list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 class Game extends React.Component {
+    state = {
+        selectedNumbers: [],
+        starsCount: 1 + Math.floor(Math.random()*9)
+    };
+
+    selectNumber = (selectedNumber) => {
+        this.setState(prevState => ({
+            selectedNumbers: prevState.selectedNumbers.concat(selectedNumber)
+        }))
+    }
+
     render() {
         return(
             <div className="container">
                 <h1>My Game</h1>
                 <hr />
                 <div className="row">
-                    <Stars />
+                    <Stars starsCount={this.state.starsCount} />
                     <Button />
-                    <Answer />
-                    <Numbers />
+                    <Answer selectedNumbers={this.state.selectedNumbers} />
+                    <hr />
+                    <Numbers selectedNumbers={this.state.selectedNumbers} onClickNumbers={this.selectNumber} />
                 </div>
             </div>
         )
